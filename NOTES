@@ -1,0 +1,40 @@
+Requires:
+	libssl-dev (libcrypto)
+
+Compile:
+	gcc *.c -o Bleichenbacher -O4 -lcrypto -Wall
+
+Usage:
+        ./Bleichenbacher [-d] [-t timeout] [-m premaster] server [port]
+
+Timeout dictates how long to wait on a connect() call before abandoning it.
+
+Premaster is a file containing the RSA-encrypted premaster secret sent
+from the client to the server during a regular TLS connection. (See below).
+
+Debug mode is switched on using '-d'. Not particularly useful.
+
+
+Notes
+-----
+Only does TLS/1.0 connections. Sorry. Roll your own SSL/3.0 code.
+As noted in the original paper, any SSL server that insists on the 
+version number in the PKCS#1-encoded data being correct increases 
+the work factor to approximately 2^39 queries of the oracle (read: 
+totally infeasible). Servers that insist on the length of the PKCS#1
+data being exactly 48 bytes push the number of guesses up towards the
+million mark (mileage may vary: you might get lucky).
+
+(Note that all the openssl engines released insist on the version 
+number and length being correct: this code will not help you break
+an openssl session. Sorry. Try PRK instead).
+
+Getting the premaster secret
+----------------------------
+Open the sniffed SSL traffic that you want to bruteforce in WireShark.
+In the Client Key Exchange packet, inside the Handshake Record, are the RSA
+Client Params. Expanding this, there should be two fields: the pubkey length,
+and the pubkey data. The pubkey data (ignore the length field), saved as
+binary data, constitute the premaster secret. The name of the file containing
+this data is passed as an argument using the '-m' parameter.
+
