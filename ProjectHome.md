@@ -1,0 +1,1 @@
+Uses a vulnerable SSL server as an Oracle to decrypt sniffed SSL traffic, using the attack invented by Daniel Bleichenbacher, and later Klima, Rosa & Pokorny.
